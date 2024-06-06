@@ -1,5 +1,7 @@
 package com.next.module.file2;
 
+import android.net.Uri;
+
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +15,36 @@ import java.io.OutputStream;
  * @auditor
  */
 abstract public class File2 {
+
+    //父文件对象
+    private File2 parent;
+
+    public File2(File2 parent) {
+        this.parent = parent;
+    }
+
+    /**
+     * 获取文件Uri
+     *
+     * @return 文件Uri
+     */
+    abstract public Uri getUri();
+
+    /**
+     * 创建文件
+     *
+     * @param displayName 文件名
+     * @return 文件对象
+     */
+    abstract public File2 createFile(String displayName);
+
+    /**
+     * 创建文件夹
+     *
+     * @param displayName 文件夹名
+     * @return 文件夹对象
+     */
+    abstract public File2 createDirectory(String displayName);
 
     /**
      * 获取文件名
@@ -61,7 +93,9 @@ abstract public class File2 {
      *
      * @return 父文件对象
      */
-    abstract public File2 getParentFile();
+    public File2 getParentFile() {
+        return this.parent;
+    }
 
     /**
      * 判断文件是否存在
@@ -83,7 +117,7 @@ abstract public class File2 {
      * @param filter 文件过滤器
      * @return 文件列表
      */
-    abstract public File2[] listFiles(FileFilter filter);
+    abstract public File2[] listFiles(FileNameFilter filter);
 
     /**
      * 删除文件
@@ -99,6 +133,14 @@ abstract public class File2 {
      * @return 是否重命名成功
      */
     abstract public boolean renameTo(String displayName);
+
+    /**
+     * 查找文件
+     *
+     * @param displayName 文件名
+     * @return 文件对象
+     */
+    abstract public File2 findFile(String displayName);
 
     /**
      * 判断文件是否可写
@@ -128,6 +170,15 @@ abstract public class File2 {
      * @throws IOException IO异常
      */
     abstract public OutputStream openOutputStream() throws IOException;
+
+    /**
+     * 打开文件输出流
+     *
+     * @param append 是否追加
+     * @return 文件输出流
+     * @throws IOException IO异常
+     */
+    abstract public OutputStream openOutputStream(boolean append) throws IOException;
 
     /**
      * 打开文件输入流
