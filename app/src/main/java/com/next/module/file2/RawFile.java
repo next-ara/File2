@@ -12,7 +12,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 /**
- * ClassName:原始文件类
+ * ClassName:RawFile
  *
  * @author Afton
  * @time 2024/6/7
