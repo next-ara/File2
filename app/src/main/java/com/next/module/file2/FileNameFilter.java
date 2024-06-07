@@ -13,7 +13,7 @@ public interface FileNameFilter {
      * 承认
      *
      * @param dir      目录
-     * @param filename 文件名
+     * @param fileName 文件名
      * @return 是否承认
      */
     boolean accept(File2 dir, String fileName);
