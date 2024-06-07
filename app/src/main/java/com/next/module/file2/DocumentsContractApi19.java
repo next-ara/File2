@@ -7,15 +7,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,12 +24,9 @@ import java.util.ArrayList;
  * @time 2024/6/7
  * @auditor
  */
-@RequiresApi(Build.VERSION_CODES.KITKAT)
 public class DocumentsContractApi19 {
 
-    //虚拟目录标记
     private static final int FLAG_VIRTUAL_DOCUMENT = 512;
-
     private static final String AUTHORITY_DOCUMENT_EXTERNAL_STORAGE = "com.android.externalstorage.documents";
     private static final String AUTHORITY_DOCUMENT_DOWNLOAD = "com.android.providers.downloads.documents";
     private static final String AUTHORITY_DOCUMENT_MEDIA = "com.android.providers.media.documents";
@@ -61,7 +55,7 @@ public class DocumentsContractApi19 {
      */
     @Nullable
     public static String getName(Context context, Uri self) {
-        return queryForString(context, self, "_display_name", (String) null);
+        return Contracts.queryForString(context, self, DocumentsContract.Document.COLUMN_DISPLAY_NAME, (String) null);
     }
 
     /**
@@ -73,7 +67,7 @@ public class DocumentsContractApi19 {
      */
     @Nullable
     private static String getRawType(Context context, Uri self) {
-        return queryForString(context, self, "mime_type", (String) null);
+        return Contracts.queryForString(context, self, DocumentsContract.Document.COLUMN_MIME_TYPE, (String) null);
     }
 
     /**
@@ -97,7 +91,7 @@ public class DocumentsContractApi19 {
      * @return 文件标记
      */
     public static long getFlags(Context context, Uri self) {
-        return queryForLong(context, self, "flags", 0L);
+        return Contracts.queryForLong(context, self, DocumentsContract.Document.COLUMN_FLAGS, 0L);
     }
 
     /**
@@ -131,7 +125,7 @@ public class DocumentsContractApi19 {
      * @return 文件最后修改时间
      */
     public static long lastModified(Context context, Uri self) {
-        return queryForLong(context, self, "last_modified", 0L);
+        return Contracts.queryForLong(context, self, DocumentsContract.Document.COLUMN_LAST_MODIFIED, 0L);
     }
 
     /**
@@ -142,7 +136,7 @@ public class DocumentsContractApi19 {
      * @return 文件大小
      */
     public static long length(Context context, Uri self) {
-        return queryForLong(context, self, "_size", 0L);
+        return Contracts.queryForLong(context, self, DocumentsContract.Document.COLUMN_SIZE, 0L);
     }
 
     /**
@@ -172,7 +166,7 @@ public class DocumentsContractApi19 {
             return false;
         } else {
             String type = getRawType(context, self);
-            int flags = queryForInt(context, self, "flags", 0);
+            int flags = Contracts.queryForInt(context, self, "flags", 0);
             if (TextUtils.isEmpty(type)) {
                 return false;
             } else if ((flags & 4) != 0) {
@@ -194,25 +188,22 @@ public class DocumentsContractApi19 {
      */
     public static Uri[] listFiles(Context context, Uri self) {
         final ContentResolver resolver = context.getContentResolver();
-        final Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(self,
-                DocumentsContract.getDocumentId(self));
+        final Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(self, DocumentsContract.getDocumentId(self));
         final ArrayList<Uri> results = new ArrayList<>();
 
         Cursor c = null;
         try {
-            c = resolver.query(childrenUri, new String[]{
-                    DocumentsContract.Document.COLUMN_DOCUMENT_ID}, null, null, null);
+            c = resolver.query(childrenUri, new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID}, null, null, null);
             if (null != c) {
                 while (c.moveToNext()) {
                     final String documentId = c.getString(0);
-                    final Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(self,
-                            documentId);
+                    final Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(self, documentId);
                     results.add(documentUri);
                 }
             }
         } catch (Exception e) {
         } finally {
-            closeQuietly(c);
+            Contracts.closeQuietly(c);
         }
 
         return results.toArray(new Uri[results.size()]);
@@ -227,21 +218,18 @@ public class DocumentsContractApi19 {
      */
     public static boolean exists(Context context, Uri self) {
         ContentResolver resolver = context.getContentResolver();
-        Cursor c = null;
 
-        boolean var5;
+        Cursor c = null;
         try {
-            c = resolver.query(self, new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID}, (String) null, (String[]) null, (String) null);
-            boolean var4 = c.getCount() > 0;
-            return var4;
-        } catch (Exception var9) {
-            Log.w("DocumentFile", "Failed query: " + var9);
-            var5 = false;
+            c = resolver.query(self, new String[]{
+                    DocumentsContract.Document.COLUMN_DOCUMENT_ID}, null, null, null);
+            return null != c && c.getCount() > 0;
+        } catch (Exception e) {
         } finally {
-            closeQuietly(c);
+            Contracts.closeQuietly(c);
         }
 
-        return var5;
+        return false;
     }
 
     /**
@@ -286,7 +274,7 @@ public class DocumentsContractApi19 {
             } else if (AUTHORITY_DOCUMENT_DOWNLOAD.equals(authority)) {
                 final String id = DocumentsContract.getDocumentId(self);
                 final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-                return queryForString(context, contentUri, MediaStore.MediaColumns.DATA, null);
+                return Contracts.queryForString(context, contentUri, MediaStore.MediaColumns.DATA, null);
             } else if (AUTHORITY_DOCUMENT_MEDIA.equals(authority)) {
                 final String docId = DocumentsContract.getDocumentId(self);
                 final String[] split = docId.split(":");
@@ -305,109 +293,12 @@ public class DocumentsContractApi19 {
                 }
 
                 final Uri contentUri = ContentUris.withAppendedId(baseUri, Long.valueOf(id));
-                return queryForString(context, contentUri, MediaStore.MediaColumns.DATA, null);
+                return Contracts.queryForString(context, contentUri, MediaStore.MediaColumns.DATA, null);
             } else {
                 return null;
             }
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    /**
-     * 查询
-     *
-     * @param context      上下文
-     * @param self         当前目录
-     * @param column       列
-     * @param defaultValue 默认值
-     * @return 查询结果
-     */
-    @Nullable
-    private static String queryForString(Context context, Uri self, String column, @Nullable String defaultValue) {
-        ContentResolver resolver = context.getContentResolver();
-        Cursor c = null;
-
-        String var7;
-        try {
-            c = resolver.query(self, new String[]{column}, (String) null, (String[]) null, (String) null);
-            String var6;
-            if (!c.moveToFirst() || c.isNull(0)) {
-                var6 = defaultValue;
-                return var6;
-            }
-
-            var6 = c.getString(0);
-            return var6;
-        } catch (Exception var11) {
-            Log.w("DocumentFile", "Failed query: " + var11);
-            var7 = defaultValue;
-        } finally {
-            closeQuietly(c);
-        }
-
-        return var7;
-    }
-
-    /**
-     * 查询
-     *
-     * @param context      上下文
-     * @param self         当前目录
-     * @param column       列
-     * @param defaultValue 默认值
-     * @return 查询结果
-     */
-    private static int queryForInt(Context context, Uri self, String column, int defaultValue) {
-        return (int) queryForLong(context, self, column, (long) defaultValue);
-    }
-
-    /**
-     * 查询
-     *
-     * @param context      上下文
-     * @param self         当前目录
-     * @param column       列
-     * @param defaultValue 默认值
-     * @return 查询结果
-     */
-    private static long queryForLong(Context context, Uri self, String column, long defaultValue) {
-        ContentResolver resolver = context.getContentResolver();
-        Cursor c = null;
-
-        long var7;
-        try {
-            c = resolver.query(self, new String[]{column}, (String) null, (String[]) null, (String) null);
-            if (!c.moveToFirst() || c.isNull(0)) {
-                var7 = defaultValue;
-                return var7;
-            }
-
-            var7 = c.getLong(0);
-        } catch (Exception var13) {
-            Log.w("DocumentFile", "Failed query: " + var13);
-            long var8 = defaultValue;
-            return var8;
-        } finally {
-            closeQuietly(c);
-        }
-
-        return var7;
-    }
-
-    /**
-     * 关闭
-     *
-     * @param closeable 自动关闭资源
-     */
-    private static void closeQuietly(@Nullable AutoCloseable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (RuntimeException var2) {
-                throw var2;
-            } catch (Exception var3) {
-            }
         }
     }
 }
