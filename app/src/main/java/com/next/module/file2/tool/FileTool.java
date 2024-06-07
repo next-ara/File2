@@ -1,4 +1,4 @@
-package com.next.module.file2;
+package com.next.module.file2.tool;
 
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;

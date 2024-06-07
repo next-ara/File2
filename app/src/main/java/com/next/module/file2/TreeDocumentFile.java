@@ -6,6 +6,8 @@ import android.provider.DocumentsContract;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
+import com.next.module.file2.tool.FileTool;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

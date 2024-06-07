@@ -4,6 +4,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.next.module.file2.tool.FileTool;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

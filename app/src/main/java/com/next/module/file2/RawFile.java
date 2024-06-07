@@ -3,6 +3,8 @@ package com.next.module.file2;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.next.module.file2.tool.FileTool;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
