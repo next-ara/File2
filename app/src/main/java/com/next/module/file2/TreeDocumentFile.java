@@ -1,13 +1,10 @@
 package com.next.module.file2;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.provider.DocumentsContract;
+import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
-
-import androidx.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -97,29 +94,11 @@ public class TreeDocumentFile extends File2 {
 
     @Override
     public File2[] listFiles() {
-        ContentResolver resolver = this.context.getContentResolver();
-        Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(this.uri, DocumentsContract.getDocumentId(this.uri));
-        ArrayList<Uri> results = new ArrayList();
-        Cursor c = null;
+        Uri[] results = DocumentsContractApi19.listFiles(this.context, this.uri);
+        File2[] resultFiles = new File2[results.length];
 
-        try {
-            c = resolver.query(childrenUri, new String[]{"document_id"}, null, null, null);
-
-            while (c.moveToNext()) {
-                String documentId = c.getString(0);
-                Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(this.uri, documentId);
-                results.add(documentUri);
-            }
-        } catch (Exception e) {
-        } finally {
-            this.closeQuietly(c);
-        }
-
-        Uri[] result = results.toArray(new Uri[results.size()]);
-        File2[] resultFiles = new File2[result.length];
-
-        for (int i = 0; i < result.length; ++i) {
-            resultFiles[i] = new TreeDocumentFile(this, result[i]);
+        for (int i = 0; i < results.length; ++i) {
+            resultFiles[i] = new TreeDocumentFile(this, results[i]);
         }
 
         return resultFiles;
@@ -127,7 +106,17 @@ public class TreeDocumentFile extends File2 {
 
     @Override
     public File2[] listFiles(FileNameFilter filter) {
-        return new File2[0];
+        Uri[] results = DocumentsContractApi19.listFiles(this.context, this.uri);
+
+        ArrayList<File2> resultFiles = new ArrayList<>();
+        for (Uri result : results) {
+            String fileName = DocumentsContractApi19.getName(this.context, result);
+            if (!TextUtils.isEmpty(fileName) && filter.accept(this, fileName)) {
+                resultFiles.add(new TreeDocumentFile(this, result));
+            }
+        }
+
+        return resultFiles.toArray(new File2[resultFiles.size()]);
     }
 
     @Override
@@ -156,6 +145,22 @@ public class TreeDocumentFile extends File2 {
 
     @Override
     public File2 findFile(String displayName) {
+        if (TextUtils.isEmpty(displayName)) {
+            return null;
+        }
+
+        if (!isDirectory()) {
+            return null;
+        }
+
+        Uri[] results = DocumentsContractApi19.listFiles(this.context, this.uri);
+
+        for (Uri uri : results) {
+            final String name = DocumentsContractApi19.getName(this.context, uri);
+            if (displayName.equals(name)) {
+                return new TreeDocumentFile(this, uri);
+            }
+        }
         return null;
     }
 
@@ -176,17 +181,59 @@ public class TreeDocumentFile extends File2 {
 
     @Override
     public OutputStream openOutputStream() throws IOException {
-        return null;
+        if (isDirectory()) {
+            throw new IOException("Can't open OutputStream from a directory");
+        }
+
+        OutputStream os;
+        try {
+            os = this.context.getContentResolver().openOutputStream(this.uri);
+        } catch (Exception e) {
+            throw new IOException("Can't open OutputStream");
+        }
+        if (os == null) {
+            throw new IOException("Can't open OutputStream");
+        }
+
+        return os;
     }
 
     @Override
     public OutputStream openOutputStream(boolean append) throws IOException {
-        return null;
+        if (isDirectory()) {
+            throw new IOException("Can't open OutputStream from a directory");
+        }
+
+        OutputStream os;
+        try {
+            os = this.context.getContentResolver().openOutputStream(this.uri, append ? "wa" : "w");
+        } catch (Exception e) {
+            throw new IOException("Can't open OutputStream");
+        }
+        if (os == null) {
+            throw new IOException("Can't open OutputStream");
+        }
+
+        return os;
     }
 
     @Override
     public InputStream openInputStream() throws IOException {
-        return null;
+        if (isDirectory()) {
+            throw new IOException("Can't open InputStream from a directory");
+        }
+
+        InputStream is;
+        try {
+            is = this.context.getContentResolver().openInputStream(this.uri);
+        } catch (Exception e) {
+            throw new IOException("Can't open InputStream");
+        }
+        if (is == null) {
+            throw new IOException("Can't open InputStream");
+        }
+
+        return is;
     }
 
     /**
@@ -202,22 +249,6 @@ public class TreeDocumentFile extends File2 {
             return DocumentsContract.createDocument(this.context.getContentResolver(), self, mimeType, displayName);
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    /**
-     * 关闭
-     *
-     * @param closeable 自动关闭资源
-     */
-    private void closeQuietly(@Nullable AutoCloseable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (RuntimeException var2) {
-                throw var2;
-            } catch (Exception var3) {
-            }
         }
     }
 }

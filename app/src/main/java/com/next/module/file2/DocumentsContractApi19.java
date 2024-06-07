@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * ClassName:DocumentsContractApi19
@@ -185,6 +186,39 @@ public class DocumentsContractApi19 {
     }
 
     /**
+     * 获取文件列表
+     *
+     * @param context 上下文
+     * @param self    当前目录
+     * @return 文件列表
+     */
+    public static Uri[] listFiles(Context context, Uri self) {
+        final ContentResolver resolver = context.getContentResolver();
+        final Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(self,
+                DocumentsContract.getDocumentId(self));
+        final ArrayList<Uri> results = new ArrayList<>();
+
+        Cursor c = null;
+        try {
+            c = resolver.query(childrenUri, new String[]{
+                    DocumentsContract.Document.COLUMN_DOCUMENT_ID}, null, null, null);
+            if (null != c) {
+                while (c.moveToNext()) {
+                    final String documentId = c.getString(0);
+                    final Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(self,
+                            documentId);
+                    results.add(documentUri);
+                }
+            }
+        } catch (Exception e) {
+        } finally {
+            closeQuietly(c);
+        }
+
+        return results.toArray(new Uri[results.size()]);
+    }
+
+    /**
      * 是否存在
      *
      * @param context 上下文
@@ -197,7 +231,7 @@ public class DocumentsContractApi19 {
 
         boolean var5;
         try {
-            c = resolver.query(self, new String[]{"document_id"}, (String) null, (String[]) null, (String) null);
+            c = resolver.query(self, new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID}, (String) null, (String[]) null, (String) null);
             boolean var4 = c.getCount() > 0;
             return var4;
         } catch (Exception var9) {
