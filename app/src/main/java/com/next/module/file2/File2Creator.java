@@ -25,8 +25,8 @@ public class File2Creator {
      * @param file File对象
      * @return File2对象
      */
-    public static File2 fromFile(@Nullable File file) {
-        return file != null ? new RawFile(null, file) : null;
+    public static <T extends File2> T fromFile(@Nullable File file) {
+        return file != null ? (T) new RawFile(null, file) : null;
     }
 
     /**
@@ -35,7 +35,7 @@ public class File2Creator {
      * @param uri Uri对象
      * @return File2对象
      */
-    public static File2 fromUri(Uri uri) {
+    public static <T extends File2> T fromUri(Uri uri) {
         if (uri == null) {
             return null;
         }
@@ -43,15 +43,15 @@ public class File2Creator {
         Context context = FileConfig.getApplication();
 
         if (isFileUri(uri)) {
-            return fromFile(new File(uri.getPath()));
+            return (T) fromFile(new File(uri.getPath()));
         } else if (DocumentFile.isDocumentUri(context, uri)) {
             if (DocumentsContract.isTreeUri(uri)) {
-                return fromTreeDocumentUri(uri);
+                return (T) fromTreeDocumentUri(uri);
             } else {
-                return fromSingleDocumentUri(uri);
+                return (T) fromSingleDocumentUri(uri);
             }
         } else if (isMediaUri(uri)) {
-            return new MediaFile(uri);
+            return (T) new MediaFile(uri);
         }
 
         return null;
@@ -63,7 +63,7 @@ public class File2Creator {
      * @param uri Uri对象
      * @return 是否为File的Uri
      */
-    public static boolean isFileUri(Uri uri) {
+    private static boolean isFileUri(Uri uri) {
         return uri != null && ContentResolver.SCHEME_FILE.equals(uri.getScheme());
     }
 
@@ -73,7 +73,7 @@ public class File2Creator {
      * @param uri Uri对象
      * @return 是否为Media的Uri
      */
-    public static boolean isMediaUri(Uri uri) {
+    private static boolean isMediaUri(Uri uri) {
         return uri != null && ContentResolver.SCHEME_CONTENT.equals(uri.getScheme());
     }
 

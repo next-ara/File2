@@ -27,7 +27,7 @@ public class DocumentFileListLoader extends FileListLoader {
             throw new FileLoadException(FileLoadException.ErrorCode.ERROR_CODE_NO_PERMISSION);
         }
 
-        TreeDocumentFile treeDocumentFile = (TreeDocumentFile) File2Creator.fromUri(FilePathTool.dataPathToUri(path));
+        TreeDocumentFile treeDocumentFile = File2Creator.fromUri(FilePathTool.dataPathToUri(path));
         //检查文件是否存在且是文件夹
         if (!treeDocumentFile.exists() || !treeDocumentFile.isDirectory()) {
             throw new FileLoadException(FileLoadException.ErrorCode.ERROR_CODE_FILE_NOT_EXIST);

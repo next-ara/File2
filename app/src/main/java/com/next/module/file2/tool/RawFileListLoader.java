@@ -26,7 +26,7 @@ public class RawFileListLoader extends FileListLoader {
             throw new FileLoadException(FileLoadException.ErrorCode.ERROR_CODE_NO_PERMISSION);
         }
 
-        RawFile rawFile = (RawFile) File2Creator.fromFile(new File(path));
+        RawFile rawFile = File2Creator.fromFile(new File(path));
         //检查文件是否存在且是文件夹
         if (!rawFile.exists() || !rawFile.isDirectory()) {
             throw new FileLoadException(FileLoadException.ErrorCode.ERROR_CODE_FILE_NOT_EXIST);
