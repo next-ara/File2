@@ -20,8 +20,7 @@ import java.util.Arrays;
 public class RawFileListLoader extends FileListLoader {
 
     @Override
-    public ArrayList<File2> getFileList(FileListFactory.LoadInfo loadInfo) throws FileLoadException {
-        String path = loadInfo.path;
+    public ArrayList<File2> getFileList(String path) throws FileLoadException {
         //检查访问权限
         if (!this.checkAccessPermission(path)) {
             throw new FileLoadException(FileLoadException.ErrorCode.ERROR_CODE_NO_PERMISSION);
@@ -33,12 +32,12 @@ public class RawFileListLoader extends FileListLoader {
             throw new FileLoadException(FileLoadException.ErrorCode.ERROR_CODE_FILE_NOT_EXIST);
         }
 
-        File2[] file2s = rawFile.listFiles((dir, fileName) -> loadInfo.showHidden || !fileName.startsWith("."));
+        File2[] file2s = rawFile.listFiles();
         return new ArrayList<>(Arrays.asList(file2s));
     }
 
     @Override
-    public boolean isExecute(FileListFactory.LoadInfo loadInfo) {
+    public boolean isExecute(String path) {
         return true;
     }
 

@@ -2,10 +2,10 @@ package com.next.module.file2;
 
 import android.net.Uri;
 
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 
 /**
  * ClassName:File2
@@ -14,7 +14,7 @@ import java.io.OutputStream;
  * @time 2024/6/6
  * @auditor
  */
-abstract public class File2 {
+abstract public class File2 implements Serializable {
 
     //父文件对象
     private File2 parent;

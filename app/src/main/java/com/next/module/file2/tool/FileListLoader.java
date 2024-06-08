@@ -16,17 +16,17 @@ abstract public class FileListLoader {
     /**
      * 获取文件列表
      *
-     * @param loadInfo 加载信息对象
+     * @param path 路径
      * @return 文件列表
      * @throws FileLoadException 文件加载异常
      */
-    abstract public ArrayList<File2> getFileList(FileListFactory.LoadInfo loadInfo) throws FileLoadException;
+    abstract public ArrayList<File2> getFileList(String path) throws FileLoadException;
 
     /**
      * 判断是否执行
      *
-     * @param loadInfo 加载信息对象
+     * @param path 路径
      * @return 是否执行
      */
-    abstract public boolean isExecute(FileListFactory.LoadInfo loadInfo);
+    abstract public boolean isExecute(String path);
 }

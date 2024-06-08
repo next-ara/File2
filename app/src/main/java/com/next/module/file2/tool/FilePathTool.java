@@ -1,5 +1,7 @@
 package com.next.module.file2.tool;
 
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 
 import com.next.module.file2.FileConfig;
@@ -88,5 +90,33 @@ public class FilePathTool {
         }
 
         return path.substring(0, path.lastIndexOf("/"));
+    }
+
+    /**
+     * data路径转Uri
+     *
+     * @param path 路径
+     * @return Uri
+     */
+    public static Uri dataPathToUri(String path) {
+        String halfPath = path.replace(ROOT_PATH + "/", "");
+        String[] segments = halfPath.split("/");
+        Uri.Builder uriBuilder = new Uri.Builder()
+                .scheme("content")
+                .authority("com.android.externalstorage.documents")
+                .appendPath("tree");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            uriBuilder.appendPath("primary:A\u200Bndroid/" + segments[1]);
+        } else {
+            uriBuilder.appendPath("primary:Android/" + segments[1]);
+        }
+        uriBuilder.appendPath("document");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            uriBuilder.appendPath("primary:A\u200Bndroid/" + halfPath.replace("Android/", ""));
+        } else {
+            uriBuilder.appendPath("primary:" + halfPath);
+        }
+
+        return uriBuilder.build();
     }
 }

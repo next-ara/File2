@@ -1,8 +1,6 @@
 package com.next.module.file2.tool;
 
 import android.content.UriPermission;
-import android.net.Uri;
-import android.os.Build;
 
 import com.next.module.file2.File2;
 import com.next.module.file2.File2Creator;
@@ -23,26 +21,24 @@ import java.util.List;
 public class DocumentFileListLoader extends FileListLoader {
 
     @Override
-    public ArrayList<File2> getFileList(FileListFactory.LoadInfo loadInfo) throws FileLoadException {
-        String path = loadInfo.path;
+    public ArrayList<File2> getFileList(String path) throws FileLoadException {
         //检查访问权限
         if (!this.checkAccessPermission(path)) {
             throw new FileLoadException(FileLoadException.ErrorCode.ERROR_CODE_NO_PERMISSION);
         }
 
-        TreeDocumentFile treeDocumentFile = (TreeDocumentFile) File2Creator.fromUri(pathToUri(path));
+        TreeDocumentFile treeDocumentFile = (TreeDocumentFile) File2Creator.fromUri(FilePathTool.dataPathToUri(path));
         //检查文件是否存在且是文件夹
         if (!treeDocumentFile.exists() || !treeDocumentFile.isDirectory()) {
             throw new FileLoadException(FileLoadException.ErrorCode.ERROR_CODE_FILE_NOT_EXIST);
         }
 
-        File2[] file2s = treeDocumentFile.listFiles((dir, fileName) -> loadInfo.showHidden || !fileName.startsWith("."));
+        File2[] file2s = treeDocumentFile.listFiles();
         return new ArrayList<>(Arrays.asList(file2s));
     }
 
     @Override
-    public boolean isExecute(FileListFactory.LoadInfo loadInfo) {
-        String path = loadInfo.path;
+    public boolean isExecute(String path) {
         if (FilePathTool.isAppDataPath(path)) {
             return false;
         }
@@ -58,7 +54,7 @@ public class DocumentFileListLoader extends FileListLoader {
      */
     private boolean checkAccessPermission(String path) {
         List<UriPermission> uriPermissions = FileConfig.getApplication().getContentResolver().getPersistedUriPermissions();
-        String uriPath = this.pathToUri(path).getPath();
+        String uriPath = FilePathTool.dataPathToUri(path).getPath();
         for (UriPermission uriPermission : uriPermissions) {
             String itemPath = uriPermission.getUri().getPath();
             if (uriPath != null && itemPath != null && (uriPath + "/").contains(itemPath + "/")) {
@@ -67,33 +63,5 @@ public class DocumentFileListLoader extends FileListLoader {
         }
 
         return false;
-    }
-
-    /**
-     * 路径转Uri
-     *
-     * @param path 路径
-     * @return Uri
-     */
-    private Uri pathToUri(String path) {
-        String halfPath = path.replace(FilePathTool.ROOT_PATH + "/", "");
-        String[] segments = halfPath.split("/");
-        Uri.Builder uriBuilder = new Uri.Builder()
-                .scheme("content")
-                .authority("com.android.externalstorage.documents")
-                .appendPath("tree");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            uriBuilder.appendPath("primary:A\u200Bndroid/" + segments[1]);
-        } else {
-            uriBuilder.appendPath("primary:Android/" + segments[1]);
-        }
-        uriBuilder.appendPath("document");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            uriBuilder.appendPath("primary:A\u200Bndroid/" + halfPath.replace("Android/", ""));
-        } else {
-            uriBuilder.appendPath("primary:" + halfPath);
-        }
-
-        return uriBuilder.build();
     }
 }
