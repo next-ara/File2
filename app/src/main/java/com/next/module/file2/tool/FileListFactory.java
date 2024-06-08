@@ -16,13 +16,13 @@ public class FileListFactory {
     /**
      * 加载信息类
      */
-    public class LoadInfo {
+    public static class LoadInfo {
 
         //文件夹路径
         public String path;
 
         //排序类型
-        public String sortType;
+        public int sortType;
 
         //是否显示隐藏文件
         public boolean showHidden;
@@ -44,7 +44,7 @@ public class FileListFactory {
          * @param sortType 排序类型
          * @return 加载信息对象
          */
-        public LoadInfo setSortType(String sortType) {
+        public LoadInfo setSortType(int sortType) {
             this.sortType = sortType;
             return this;
         }
@@ -83,7 +83,9 @@ public class FileListFactory {
 
         for (FileListLoader fileListLoader : this.fileListLoaders) {
             if (fileListLoader.isExecute(loadInfo)) {
-                return fileListLoader.getFileList(loadInfo);
+                ArrayList<File2> fileList = fileListLoader.getFileList(loadInfo);
+                FileSortTool.sort(fileList, loadInfo.sortType);
+                return fileList;
             }
         }
 
@@ -95,5 +97,9 @@ public class FileListFactory {
      */
     private void initFileListLoaders() {
         this.fileListLoaders = new ArrayList<>();
+        //DocumentFile加载器注册
+        this.fileListLoaders.add(new DocumentFileListLoader());
+        //RawFile加载器注册
+        this.fileListLoaders.add(new RawFileListLoader());
     }
 }

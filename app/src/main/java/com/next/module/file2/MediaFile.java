@@ -25,8 +25,8 @@ public class MediaFile extends File2 {
     //上下文
     private Context context;
 
-    public MediaFile(File2 parent, Uri uri) {
-        super(parent);
+    public MediaFile(Uri uri) {
+        super(null);
         this.uri = uri;
         this.context = FileConfig.getApplication();
     }
