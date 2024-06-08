@@ -34,7 +34,7 @@ public class RawFileListLoader extends FileListLoader {
         }
 
         File2[] file2s = rawFile.listFiles((dir, fileName) -> loadInfo.showHidden || !fileName.startsWith("."));
-        return (ArrayList<File2>) Arrays.asList(file2s);
+        return new ArrayList<>(Arrays.asList(file2s));
     }
 
     @Override

@@ -31,8 +31,13 @@ public class DocumentFileListLoader extends FileListLoader {
         }
 
         TreeDocumentFile treeDocumentFile = (TreeDocumentFile) File2Creator.fromUri(pathToUri(path));
+        //检查文件是否存在且是文件夹
+        if (!treeDocumentFile.exists() || !treeDocumentFile.isDirectory()) {
+            throw new FileLoadException(FileLoadException.ErrorCode.ERROR_CODE_FILE_NOT_EXIST);
+        }
+
         File2[] file2s = treeDocumentFile.listFiles((dir, fileName) -> loadInfo.showHidden || !fileName.startsWith("."));
-        return (ArrayList<File2>) Arrays.asList(file2s);
+        return new ArrayList<>(Arrays.asList(file2s));
     }
 
     @Override
