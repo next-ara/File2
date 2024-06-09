@@ -7,8 +7,6 @@ import com.next.module.file2.File2Creator;
 import com.next.module.file2.RawFile;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * ClassName:RawFile加载器类
@@ -20,7 +18,7 @@ import java.util.Arrays;
 public class RawFileListLoader extends FileListLoader {
 
     @Override
-    public ArrayList<File2> getFileList(String path) throws FileLoadException {
+    public FileListFactory.FileListInfo getFileList(String path) throws FileLoadException {
         //检查访问权限
         if (!this.checkAccessPermission(path)) {
             throw new FileLoadException(FileLoadException.ErrorCode.ERROR_CODE_NO_PERMISSION);
@@ -33,7 +31,7 @@ public class RawFileListLoader extends FileListLoader {
         }
 
         File2[] file2s = rawFile.listFiles();
-        return new ArrayList<>(Arrays.asList(file2s));
+        return new FileListFactory.FileListInfo(rawFile, file2s);
     }
 
     @Override

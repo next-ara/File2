@@ -7,8 +7,6 @@ import com.next.module.file2.File2Creator;
 import com.next.module.file2.FileConfig;
 import com.next.module.file2.TreeDocumentFile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,7 +19,7 @@ import java.util.List;
 public class DocumentFileListLoader extends FileListLoader {
 
     @Override
-    public ArrayList<File2> getFileList(String path) throws FileLoadException {
+    public FileListFactory.FileListInfo getFileList(String path) throws FileLoadException {
         //检查访问权限
         if (!this.checkAccessPermission(path)) {
             throw new FileLoadException(FileLoadException.ErrorCode.ERROR_CODE_NO_PERMISSION);
@@ -34,7 +32,7 @@ public class DocumentFileListLoader extends FileListLoader {
         }
 
         File2[] file2s = treeDocumentFile.listFiles();
-        return new ArrayList<>(Arrays.asList(file2s));
+        return new FileListFactory.FileListInfo(treeDocumentFile, file2s);
     }
 
     @Override
