@@ -6,6 +6,8 @@ import android.os.Environment;
 
 import com.next.module.file2.FileConfig;
 
+import java.io.File;
+
 /**
  * ClassName:文件路径工具类
  *
@@ -85,11 +87,32 @@ public class FilePathTool {
      * @return 父路径
      */
     public static String getParentPath(String path) {
-        if (path.endsWith("/")) {
+        if (path.endsWith(File.separator)) {
             path = path.substring(0, path.length() - 1);
         }
 
-        return path.substring(0, path.lastIndexOf("/"));
+        int lastSeparatorIndex = path.lastIndexOf(File.separator);
+
+        if (lastSeparatorIndex > 0) {
+            return path.substring(0, lastSeparatorIndex);
+        } else {
+            return ROOT_PATH;
+        }
+    }
+
+    /**
+     * 获取子路径
+     *
+     * @param parentPath 父路径
+     * @param childName  子文件名称
+     * @return 子路径
+     */
+    public static String getChildPath(String parentPath, String childName) {
+        if (!parentPath.endsWith(File.separator)) {
+            parentPath += File.separator;
+        }
+
+        return parentPath + childName;
     }
 
     /**
