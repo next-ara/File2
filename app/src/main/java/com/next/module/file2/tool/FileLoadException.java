@@ -15,8 +15,6 @@ public class FileLoadException extends RuntimeException {
         public static final int ERROR_CODE_FILE_NOT_EXIST = 1;
         //没有访问权限
         public static final int ERROR_CODE_NO_PERMISSION = 2;
-        //加载信息不完整
-        public static final int ERROR_CODE_INCOMPLETE_INFO = 3;
     }
 
     //错误码
@@ -44,5 +42,9 @@ public class FileLoadException extends RuntimeException {
     public FileLoadException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, int errorCode) {
         super(message, cause, enableSuppression, writableStackTrace);
         this.errorCode = errorCode;
+    }
+
+    public int getErrorCode() {
+        return errorCode;
     }
 }
