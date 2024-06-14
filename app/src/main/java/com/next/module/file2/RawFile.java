@@ -3,8 +3,6 @@ package com.next.module.file2;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import androidx.core.content.FileProvider;
-
 import com.next.module.file2.tool.FileTool;
 
 import java.io.File;
@@ -33,11 +31,7 @@ public class RawFile extends File2 {
 
     @Override
     public Uri getUri() {
-        try {
-            return FileProvider.getUriForFile(FileConfig.getApplication(), FileConfig.getAuthority(), this.file);
-        } catch (Exception e) {
-            return Uri.fromFile(this.file);
-        }
+        return Uri.fromFile(this.file);
     }
 
     @Override
