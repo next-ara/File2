@@ -33,7 +33,11 @@ public class RawFile extends File2 {
 
     @Override
     public Uri getUri() {
-        return FileProvider.getUriForFile(FileConfig.getApplication(), FileConfig.getAuthority(), this.file);
+        try {
+            return FileProvider.getUriForFile(FileConfig.getApplication(), FileConfig.getAuthority(), this.file);
+        } catch (Exception e) {
+            return Uri.fromFile(this.file);
+        }
     }
 
     @Override
