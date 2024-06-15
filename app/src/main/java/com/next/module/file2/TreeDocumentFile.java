@@ -44,7 +44,6 @@ public class TreeDocumentFile extends File2 {
         int index = displayName.lastIndexOf('.');
         String mimeType = "application/octet-stream";
         if (index > 0) {
-            displayName = displayName.substring(0, index);
             String extension = displayName.substring(index + 1);
             mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         }
