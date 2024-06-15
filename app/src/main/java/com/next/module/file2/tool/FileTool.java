@@ -55,6 +55,7 @@ public class FileTool {
             String mimeType = file.getType();
             intent.setDataAndType(getOpenUri(file), mimeType);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             FileConfig.getApplication().startActivity(intent);
             return true;
         } catch (Exception e) {
