@@ -48,18 +48,13 @@ public class RawFile extends File2 {
                 return null;
             }
         } else {
-            OutputStream os = null;
             try {
-                os = new FileOutputStream(target);
-                return new RawFile(this, target);
-            } catch (IOException e) {
-                return null;
-            } finally {
-                try {
-                    os.close();
-                } catch (IOException e) {
+                if (target.createNewFile()) {
+                    return new RawFile(this, target);
                 }
+            } catch (Exception e) {
             }
+            return null;
         }
     }
 
